@@ -20,6 +20,5 @@ out accuracy for performance. Here is the score breakdown:
 | Mine Flagged               | +9                    | Each correctly flagged mine on a submitted board                                                                        |
 | Safe Space Hit             | +Value of Space       | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity         |
 | Fully Accurate Board Bonus | +20                   | Bonus for submitting a fully accurate board (all mines flagged correctly, all safe spaces hit correctly, no undefineds) |
-| Space Undefined            | -2                    | Penalty for not defining if a space is safe or flagged                                                                  |
 | Safe Space Flagged         | -(Value of Space + 1) | Penalty for flagging a safe space is # of mines in immediate proximity + 1                                              |
 | Mine Hit                   | -10                   | Penalty for hitting a mine                                                                                              |
