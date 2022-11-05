@@ -1,2 +1,2 @@
 # minesweeper-async
-Aysnc Minesweeper Game
+A game about async processing and imperfect information.
