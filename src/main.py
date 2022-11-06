@@ -154,7 +154,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
         )
 
     await helpers.wait_for(settings.latency.is_space_blank)
-    return models.Answer(True) if space_type == models.BoardSpaceType.BLANK else models.Answer(False)
+    return models.Answer(space_type == models.BoardSpaceType.BLANK)
 
 
 @app.get("/get_space_value")

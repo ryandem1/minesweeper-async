@@ -2,7 +2,7 @@ import itertools
 import random
 import uuid
 from enum import StrEnum
-from typing import Generator
+from typing import Generator, Any
 
 from pydantic import BaseModel, Field
 
@@ -17,9 +17,9 @@ class Score(BaseModel):
 
 
 class Answer(BaseModel):
-    answer: bool | int
+    answer: Any
 
-    def __init__(self, answer: bool | int):
+    def __init__(self, answer: Any):
         super().__init__(answer=answer)
 
 
