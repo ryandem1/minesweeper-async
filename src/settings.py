@@ -18,5 +18,5 @@ class AppSettings(BaseModel):
 
 
 class Settings(BaseSettings):
-    board: BoardSettings
-    app: AppSettings
+    board: BoardSettings = BoardSettings()
+    app: AppSettings = AppSettings()
