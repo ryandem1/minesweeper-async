@@ -13,6 +13,8 @@ SCORE = 0
 OUTSTANDING_BOARDS: list[models.Board] = []  # Boards that have been requested but not returned
 
 
+# region ACTION_ENDPOINTS
+
 @app.get("/score")
 async def _():
     return models.Score(SCORE)
@@ -115,6 +117,10 @@ async def _(board: models.Board):
     await helpers.wait_for(settings.latency.check)
     return models.Score(SCORE)
 
+# endregion
+
+# region DISCOVERY_ENDPOINTS
+
 
 @app.get("/is_space_blank")
 async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
@@ -191,3 +197,5 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
 
     await helpers.wait_for(settings.latency.is_space_a_mine)
     return models.Answer(space.type == models.BoardSpaceType.MINE)
+
+# endregion
