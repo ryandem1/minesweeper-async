@@ -24,7 +24,7 @@ class BoardSpaceType(StrEnum):
 class BoardSpace(BaseModel):
     x: int
     y: int
-    value: int | None  # Number of mines in immediate proximity of space. None if space is a mine
+    value: int  # Number of mines in immediate proximity of space.
     type_: BoardSpaceType
     hit: bool = False  # Whether the space has been hit or not
 
@@ -38,33 +38,6 @@ class Board(BaseModel):
     )
     spaces: list[BoardSpace] = []
     settings: BoardSettings  # Most likely global board settings
-
-    @classmethod
-    def new(cls, settings: BoardSettings):
-        """
-        Creates a new randomized Minesweeper board. Randomness based on ``self.id``
-
-        Returns
-        -------
-        Board object
-        """
-        obj = cls(settings=settings)
-        random.seed(obj.id.int)
-
-        # Adds bombs randomly on 2d plane of default dimensions
-        available_coordinates = list(itertools.product(range(settings.length), range(settings.height)))
-        obj.spaces.extend(
-            BoardSpace(**{
-                "x": coords[0],
-                "y": coords[1],
-                "value": None,
-                "type_": BoardSpaceType.MINE
-            })
-            for coords in [
-                available_coordinates.pop(random.randrange(len(available_coordinates)))
-                for _ in range(settings.mines)
-            ]
-        )
 
     def __getitem__(self, item: tuple[int, int]) -> BoardSpace:
         """
@@ -112,3 +85,87 @@ class Board(BaseModel):
                 )
 
             yield space
+
+    @classmethod
+    def new(cls, settings: BoardSettings):
+        """
+        Creates a new randomized Minesweeper board. Randomness based on ``self.id``
+
+        Returns
+        -------
+        Board object
+        """
+        obj = cls(settings=settings)
+        random.seed(obj.id.int)
+
+        # Adds mines randomly on 2d plane of default dimensions
+        available_coordinates = list(itertools.product(range(settings.length), range(settings.height)))
+        obj.spaces.extend(
+            BoardSpace(**{
+                "x": x,
+                "y": y,
+                "value": 0,
+                "type_": BoardSpaceType.MINE
+            })
+            for x, y in [
+                available_coordinates.pop(random.randrange(len(available_coordinates)))
+                for _ in range(settings.mines)
+            ]
+        )
+
+        # Adds value spaces according to mine neighbors
+        mine_spaces = (space for space in obj.spaces if space.type_ == BoardSpaceType.MINE)
+        for mine_space in mine_spaces:
+            for neighbor in obj.get_neighbors(mine_space):
+                match neighbor:
+                    # If there is already a node created at the neighboring spot, increment the nearby-mine value
+                    case BoardSpace() as space:
+                        space.value += 1
+                    case int(x), int(y):  # If x, y coords get returned, then the space has not been created yet
+                        obj.spaces.append(
+                            BoardSpace(**{
+                                "x": x,
+                                "y": y,
+                                "value": 1,
+                                "type_": BoardSpaceType.VALUE
+                            })
+                        )
+                        available_coordinates.remove((x, y))
+                    case _:
+                        raise ValueError(f"Unexpected neighbor value: {neighbor}")
+
+        # Adds remaining blank spaces
+        obj.spaces.extend(
+            BoardSpace(**{
+                "x": x,
+                "y": y,
+                "value": 0,
+                "type_": BoardSpaceType.BLANK
+            })
+            for x, y in available_coordinates
+        )
+        return obj
+
+    def get_neighbors(self, space: BoardSpace) -> Generator[BoardSpace | tuple[int, int], None, None]:
+        """
+        Gets all neighbors for a given space. By definition, a space can have a maximum of 8 neighbors and a minimum of
+        3 (if the space is in a corner).
+
+        Parameters
+        ----------
+        space : BoardSpace
+            Space on the current board to get neighbors for.
+
+        Returns
+        -------
+        Generator of neighboring ``BoardSpace`` objects. Returns neighbor nodes starting from the immediate left
+        neighbor, and then rotating clockwise. If there is no ``BoardSpace`` at a neighbors coordinates and the coords
+        are in range, this will instead return the coordinates. See ``self.new`` for use
+        """
+        for neighbor_coords in itertools.product(range(space.x - 1, space.x + 2), range(space.y - 1, space.y + 2)):
+            try:
+                yield self[neighbor_coords]
+            except IndexError:  # Current node must be an edge, so neighbor is off the board
+                continue
+            except ValueError:
+                return neighbor_coords

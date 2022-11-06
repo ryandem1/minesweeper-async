@@ -25,7 +25,7 @@ async def _():
             detail="Cannot provide another board until one is checked in!"
         )
 
-    board = models.Board()
+    board = models.Board.new(settings=settings.board)
     OUTSTANDING_BOARDS.append(board)
     return board
 
