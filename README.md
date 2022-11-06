@@ -24,9 +24,14 @@ out accuracy for performance. Here is the score breakdown:
 | Safe Space Flagged         | -(Value of Space + 1) | Penalty for flagging a safe space is # of mines in immediate proximity + 1                                              |
 | Mine Hit                   | -10                   | Penalty for hitting a mine                                                                                              |
 
+### Data Endpoints
+| Endpoint | Method | Description                                                                                             | Query Parameter(s) | Sample Request Body |
+|----------|--------|---------------------------------------------------------------------------------------------------------|--------------------|---------------------|
+| `/board` | `GET`  | Creates a new Minesweeper board internally and will return the caller the UUID                          | N/A                | N/A                 |
+| `/check` | `POST` | Will check the provided board, update the score, and free up a space in the overall outstanding boards. | N/A                | TBD                 |
 
 ### Discovery Endpoints
 
-| Endpoint          | Description                                                                       | Query Parameter(s)                                              | Sample Request Body |
-|-------------------|-----------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
-| `/is_space_blank` | Returns a bool answer whether or not the space is a free space (no value/no mine) | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
+| Endpoint          | Method | Description                                                                       | Query Parameter(s)                                              | Sample Request Body |
+|-------------------|--------|-----------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
+| `/is_space_blank` | `GET`  | Returns a bool answer whether or not the space is a free space (no value/no mine) | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
