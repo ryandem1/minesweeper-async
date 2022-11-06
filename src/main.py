@@ -113,6 +113,19 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
     )
 
 
+@app.post("/check")
+async def _(board: models.Board):
+    global SCORE
+    global OUTSTANDING_BOARDS
+
+    correct_board = helpers.get_board_by_id_or_error(board.id, OUTSTANDING_BOARDS)
+
+    OUTSTANDING_BOARDS.remove(correct_board)
+
+    await helpers.wait_for(settings.latency.check)
+    return models.Score(SCORE)
+
+
 @app.get("/is_space_blank")
 async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     """
@@ -120,8 +133,11 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
 
     Parameters
     ----------
+    board_id : UUID
+        ID of the board that the space is on
+
     space : models.BoardSpace
-        Space to check
+        Coordinates of the space to flag
 
     Returns
     -------
@@ -141,14 +157,33 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     return models.Answer(True) if space_type == models.BoardSpaceType.BLANK else models.Answer(False)
 
 
-@app.post("/check")
-async def _(board: models.Board):
-    global SCORE
-    global OUTSTANDING_BOARDS
+@app.get("/get_space_value")
+async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
+    """
+    Gets the amount of mines immediate adjacent to the space by coordinates. Note that mines also have a value, and they
+    count themselves, so they will not necessarily be detectable from determining their value.
 
-    correct_board = helpers.get_board_by_id_or_error(board.id, OUTSTANDING_BOARDS)
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board that the space is on
 
-    OUTSTANDING_BOARDS.remove(correct_board)
+    space : models.BoardSpace
+        Coordinates of the space to flag
 
-    await helpers.wait_for(settings.latency.check)
-    return models.Score(SCORE)
+    Returns
+    -------
+    answer : models.Answer
+        Format: {"answer": <int_value>}
+    """
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
+    try:
+        space = board[space]
+    except IndexError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    await helpers.wait_for(settings.latency.get_space_value)
+    return models.Answer(space.value)

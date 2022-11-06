@@ -1,10 +1,11 @@
-import uuid
-import random
 import itertools
-
-from pydantic import BaseModel, Field
+import random
+import uuid
 from enum import StrEnum
 from typing import Generator
+
+from pydantic import BaseModel, Field
+
 from settings import BoardSettings
 
 
@@ -12,14 +13,14 @@ class Score(BaseModel):
     score: int
 
     def __init__(self, score: int):
-        super().__init__(**{"score": score})
+        super().__init__(score=score)
 
 
 class Answer(BaseModel):
-    answer: bool
+    answer: bool | int
 
-    def __init__(self, answer: bool):
-        super().__init__(**{"answer": answer})
+    def __init__(self, answer: bool | int):
+        super().__init__(answer=answer)
 
 
 class BoardSpaceType(StrEnum):
