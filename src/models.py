@@ -39,6 +39,34 @@ class Board(BaseModel):
     spaces: list[BoardSpace] = []
     settings: BoardSettings  # Most likely global board settings
 
+    def __str__(self) -> str:
+        """
+        Prints a textual/graphical representation of the Minesweeper board. This really assumes that the print font will
+        be monospace. If it isn't, it will be... ugly.
+
+        Returns
+        -------
+        Monospace textart representation of Minesweeper board
+        """
+        output = ""
+        current_x = 0
+
+        for space in self:
+            if current_x != space.x:
+                output += "\n"
+                current_x = space.x
+
+            match space:
+                case BoardSpace(type_=BoardSpaceType.BLANK):
+                    output += "_"
+                case BoardSpace(type_=BoardSpaceType.VALUE) as space:
+                    output += str(space.value)
+                case BoardSpace(type_=BoardSpaceType.MINE):
+                    output += "*"
+                case _:
+                    raise ValueError(f"Unhandled type: {space.type_}")
+        return output
+
     def __getitem__(self, item: tuple[int, int]) -> BoardSpace:
         """
         Gets board space by x, y coordinates.
@@ -168,4 +196,4 @@ class Board(BaseModel):
             except IndexError:  # Current node must be an edge, so neighbor is off the board
                 continue
             except ValueError:
-                return neighbor_coords
+                yield neighbor_coords
