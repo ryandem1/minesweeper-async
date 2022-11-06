@@ -90,12 +90,14 @@ class Board(BaseModel):
         space : BoardSpace
             Space at coordinates
         """
-        if not self.settings.length > item[0] >= 0 or not self.settings.height > item[1] >= 0:
+        x, y = item
+
+        if not self.settings.length > x >= 0 or not self.settings.height > y >= 0:
             raise IndexError(
                 f"Coordinates: {item} out-of-range. Board dimensions: {self.settings.length}x{self.settings.height}"
             )
 
-        space = next((s for s in self.spaces if s.x == item[0] and s.y == item[1]), None)
+        space = next((s for s in self.spaces if s.x == x and s.y == y), None)
         if not space:
             raise ValueError(
                 f"Somehow don't have space for coordinates: {item} even though it is in range of "

@@ -20,3 +20,7 @@ class AppSettings(BaseModel):
 class Settings(BaseSettings):
     board: BoardSettings = BoardSettings()
     app: AppSettings = AppSettings()
+
+    class Config:
+        env_file = ".env"
+        env_nested_delimiter = "__"
