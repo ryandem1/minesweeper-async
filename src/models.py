@@ -1,4 +1,6 @@
 import uuid
+import random
+import itertools
 
 from pydantic import BaseModel, Field
 from enum import StrEnum
@@ -33,11 +35,26 @@ class Board(BaseModel):
         index=True,
         nullable=False,
     )
-    spaces: list[BoardSpace]
+    spaces: list[BoardSpace] = []
 
     # Board dimensions
     length: int = 9
     height: int = 9
+    mines: int = 10  # Number of mines
+
+    @classmethod
+    def new(cls):
+        """
+        Creates a new randomized Minesweeper board. Randomness based on ``self.id``
+
+        Returns
+        -------
+        Board object
+        """
+        obj = cls()
+        random.seed(obj.id.int)
+
+        available_coordinates = list(itertools.product(range(obj.length), range(obj.height)))
 
     def __getitem__(self, item: tuple[int, int]) -> BoardSpace:
         """
@@ -67,11 +84,19 @@ class Board(BaseModel):
 
     def __iter__(self) -> Generator[BoardSpace, None, None]:
         """
-        Iterates through the ``BoardSpace`` objects in ``self.spaces``. Order is not guaranteed to be in any way.
+        Iterates through the ``BoardSpace`` objects in ``self.spaces``. Iterates starting from 0, 0. Iterates through
+        all y's then all x's
 
         Returns
         -------
         BoardSpace generator
         """
-        for space in self.spaces:
+        for coords in itertools.product(range(self.length), range(self.height)):
+            space = next((s for s in self.spaces if s.x == coords[0] and s.y == coords[1]), None)
+            if not space:
+                raise ValueError(
+                    f"Somehow don't have space for coordinates: {coords} even though it is in range of "
+                    f"{self.length}x{self.height} board"
+                )
+
             yield space
