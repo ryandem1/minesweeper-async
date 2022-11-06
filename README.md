@@ -13,7 +13,8 @@ of the game and a few of the rules.
 4. The idea is that, to get a high score, one must balance performance and accuracy
 5. While in normal Minesweeper, there can be circumstances where, given perfect analysis of all available information, 
 it is impossible to determine with 100% that a space is or is not a mine without guessing; in Async Minesweeper, you 
-can ask the server questions about the board at the cost of latency depending on how informative the question is
+can ask the server questions about the board at the cost of latency depending on how informative the question is. This
+way, it is possible to accurately determine every space of every board
 
 
 Here is a note on the computation complexity of Minesweeper that I stole from Wikipedia:
