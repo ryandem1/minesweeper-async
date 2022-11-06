@@ -54,13 +54,8 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
         Space that was hit
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    try:
-        space = board[space]
-    except IndexError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+    space = helpers.get_space_on_board_or_error(space, board)
+
     if space.hit:
         raise HTTPException(
             status_code=400,
@@ -91,13 +86,8 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
         Coordinates and flag status of space
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    try:
-        space = board[space]
-    except IndexError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+    space = helpers.get_space_on_board_or_error(space, board)
+
     if space.hit:
         raise HTTPException(
             status_code=400,
@@ -145,13 +135,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
         Format: {"answer": <bool>}
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    try:
-        space_type = board[space].type
-    except IndexError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+    space_type = helpers.get_space_on_board_or_error(space, board).type
 
     await helpers.wait_for(settings.latency.is_space_blank)
     return models.Answer(space_type == models.BoardSpaceType.BLANK)
@@ -177,13 +161,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
         Format: {"answer": <int_value>}
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    try:
-        space = board[space]
-    except IndexError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+    space = helpers.get_space_on_board_or_error(space, board)
 
     await helpers.wait_for(settings.latency.get_space_value)
     return models.Answer(space.value)

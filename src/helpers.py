@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 
-from models import Board
+from models import Board, BoardSpace
 from settings import LatencyValue
 
 MILLISECONDS = 0.001
@@ -58,3 +58,30 @@ def get_board_by_id_or_error(board_id: UUID, boards: list[Board]) -> Board:
         status_code=400,
         detail="Board not found!"
     )
+
+
+def get_space_on_board_or_error(space: BoardSpace, board: Board) -> BoardSpace:
+    """
+    Retrieves a space on a board by coordinates.
+
+    Parameters
+    ----------
+    space : BoardSpace
+        Coordinates of the space to get.
+
+    board : Board
+        Minesweeper board to check
+
+    Returns
+    -------
+    space : BoardSpace
+        space if it exists on the board, or else will raise a `HTTPException`
+    """
+    try:
+        space = board[space]
+    except IndexError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    return space
