@@ -22,8 +22,8 @@ out accuracy for performance. Here is the score breakdown:
 | Fully Accurate Board Bonus | x1.25                                                                             | Bonus for submitting a fully accurate board (all mines flagged correctly, all safe spaces hit correctly, no undefineds) |
 | Safe Space Hit             | +Value of Space                                                                   | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity         |
 | Safe Space Flagged         | -Value of Space                                                                   | Penalty for flagging a safe space is # of mines in immediate proximity                                                  |
-| Mine Flagged               | +10                                                                               | Each correctly flagged mine on a submitted board                                                                        |
-| Mine Hit                   | -10                                                                               | Penalty for hitting a mine                                                                                              |
+| Mine Flagged               | +(Sum of all neighboring space values)                                            | Each correctly flagged mine on a submitted board                                                                        |
+| Mine Hit                   | -(Sum of all neighboring space values)                                            | Penalty for hitting a mine                                                                                              |
 
 ### Action Endpoints
 
