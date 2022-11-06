@@ -16,12 +16,18 @@ class Score(BaseModel):
 
 
 class BoardSpaceType(StrEnum):
+    """
+    The types that a ``BoardSpace`` could be
+    """
     BLANK = "BLANK"  # Non-mine space with no mines in immediate proximity
     VALUE = "VALUE"  # Non-mine space with at least 1 mine in immediate proximity
     MINE = "MINE"  # Mine space
 
 
 class BoardSpace(BaseModel):
+    """
+    A single Minesweeper space on a board
+    """
     x: int
     y: int
     value: int  # Number of mines in immediate proximity of space.
@@ -30,6 +36,9 @@ class BoardSpace(BaseModel):
 
 
 class Board(BaseModel):
+    """
+    Represents a single Minesweeper board. Takes in ``BoardSettings`` to determine mines/dimensions
+    """
     id: uuid.UUID = Field(
         default_factory=uuid.uuid4,
         primary_key=True,
