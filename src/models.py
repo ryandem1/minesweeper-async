@@ -67,11 +67,11 @@ class Board(BaseModel):
 
             match space:
                 case BoardSpace(type_=BoardSpaceType.BLANK):
-                    output += "_"
+                    output += " _ "
                 case BoardSpace(type_=BoardSpaceType.VALUE) as space:
-                    output += str(space.value)
+                    output += " " + str(space.value) + " "
                 case BoardSpace(type_=BoardSpaceType.MINE):
-                    output += "*"
+                    output += " * "
                 case _:
                     raise ValueError(f"Unhandled type: {space.type_}")
         return output
@@ -90,7 +90,7 @@ class Board(BaseModel):
         space : BoardSpace
             Space at coordinates
         """
-        if not self.settings.length > item[0] > 0 or not self.settings.height > item[1] > 0:
+        if not self.settings.length > item[0] >= 0 or not self.settings.height > item[1] >= 0:
             raise IndexError(
                 f"Coordinates: {item} out-of-range. Board dimensions: {self.settings.length}x{self.settings.height}"
             )
