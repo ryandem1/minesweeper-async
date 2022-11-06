@@ -1,11 +1,12 @@
-from uuid import UUID
-from models import Board
-from settings import LatencyValue
-from fastapi import HTTPException
 from asyncio import sleep
 from random import randint
 from typing import Coroutine, Any
+from uuid import UUID
 
+from fastapi import HTTPException
+
+from models import Board
+from settings import LatencyValue
 
 MILLISECONDS = 0.001
 
