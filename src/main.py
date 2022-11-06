@@ -1,5 +1,3 @@
-import asyncio
-from random import randint
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
@@ -32,6 +30,8 @@ async def _():
 
     board = models.Board.new(settings=settings.board)
     OUTSTANDING_BOARDS.append(board)
+
+    await helpers.wait_for(settings.latency.board)
     return {"id": board.id}
 
 
@@ -67,7 +67,8 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
             detail="Space already hit!"
         )
     space.hit = True
-    await asyncio.sleep(randint(20, 50) * helpers.MILLISECONDS)
+
+    await helpers.wait_for(settings.latency.hit)
     return space
 
 
@@ -95,7 +96,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
             detail=str(e)
         )
 
-    await asyncio.sleep(randint(200, 300) * helpers.MILLISECONDS)
+    await helpers.wait_for(settings.latency.is_space_blank)
     return models.Answer(True) if space_type == models.BoardSpaceType.BLANK else models.Answer(False)
 
 
@@ -107,4 +108,6 @@ async def _(board: models.Board):
     correct_board = helpers.get_board_by_id_or_error(board.id, OUTSTANDING_BOARDS)
 
     OUTSTANDING_BOARDS.remove(correct_board)
+
+    await helpers.wait_for(settings.latency.check)
     return models.Score(SCORE)
