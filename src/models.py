@@ -39,6 +39,8 @@ class BoardSpace(BaseModel):
     y: int
     value: int | None = None  # Number of mines in immediate proximity of space.
     type: BoardSpaceType | None = None
+    hit: bool | None = None
+    flagged: bool | None = None
 
 
 class Board(BaseModel):
@@ -157,7 +159,9 @@ class Board(BaseModel):
                 "x": x,
                 "y": y,
                 "value": 1,  # For obfuscation,
-                "type_": BoardSpaceType.MINE
+                "type": BoardSpaceType.MINE,
+                "hit": False,
+                "flagged": False
             })
             for x, y in [
                 available_coordinates.pop(random.randrange(len(available_coordinates)))
@@ -179,7 +183,9 @@ class Board(BaseModel):
                                 "x": x,
                                 "y": y,
                                 "value": 1,
-                                "type_": BoardSpaceType.VALUE
+                                "type": BoardSpaceType.VALUE,
+                                "hit": False,
+                                "flagged": False
                             })
                         )
                         available_coordinates.remove((x, y))
@@ -192,7 +198,9 @@ class Board(BaseModel):
                 "x": x,
                 "y": y,
                 "value": 0,
-                "type_": BoardSpaceType.BLANK
+                "type": BoardSpaceType.BLANK,
+                "hit": False,
+                "flagged": False
             })
             for x, y in available_coordinates
         )
