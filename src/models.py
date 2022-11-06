@@ -5,6 +5,7 @@ import itertools
 from pydantic import BaseModel, Field
 from enum import StrEnum
 from typing import Generator
+from settings import BoardSettings
 
 
 class Score(BaseModel):
@@ -23,7 +24,7 @@ class BoardSpaceType(StrEnum):
 class BoardSpace(BaseModel):
     x: int
     y: int
-    value: int  # Number of mines in immediate proximity of space
+    value: int | None  # Number of mines in immediate proximity of space. None if space is a mine
     type_: BoardSpaceType
     hit: bool = False  # Whether the space has been hit or not
 
@@ -36,14 +37,10 @@ class Board(BaseModel):
         nullable=False,
     )
     spaces: list[BoardSpace] = []
-
-    # Board dimensions
-    length: int = 9
-    height: int = 9
-    mines: int = 10  # Number of mines
+    settings: BoardSettings  # Most likely global board settings
 
     @classmethod
-    def new(cls):
+    def new(cls, settings: BoardSettings):
         """
         Creates a new randomized Minesweeper board. Randomness based on ``self.id``
 
@@ -51,10 +48,23 @@ class Board(BaseModel):
         -------
         Board object
         """
-        obj = cls()
+        obj = cls(settings=settings)
         random.seed(obj.id.int)
 
-        available_coordinates = list(itertools.product(range(obj.length), range(obj.height)))
+        # Adds bombs randomly on 2d plane of default dimensions
+        available_coordinates = list(itertools.product(range(settings.length), range(settings.height)))
+        obj.spaces.extend(
+            BoardSpace(**{
+                "x": coords[0],
+                "y": coords[1],
+                "value": None,
+                "type_": BoardSpaceType.MINE
+            })
+            for coords in [
+                available_coordinates.pop(random.randrange(len(available_coordinates)))
+                for _ in range(settings.mines)
+            ]
+        )
 
     def __getitem__(self, item: tuple[int, int]) -> BoardSpace:
         """
@@ -70,14 +80,16 @@ class Board(BaseModel):
         space : BoardSpace
             Space at coordinates
         """
-        if not self.length > item[0] > 0 or not self.height > item[1] > 0:
-            raise IndexError(f"Coordinates: {item} out-of-range. Board dimensions: {self.length}x{self.height}")
+        if not self.settings.length > item[0] > 0 or not self.settings.height > item[1] > 0:
+            raise IndexError(
+                f"Coordinates: {item} out-of-range. Board dimensions: {self.settings.length}x{self.settings.height}"
+            )
 
         space = next((s for s in self.spaces if s.x == item[0] and s.y == item[1]), None)
         if not space:
             raise ValueError(
                 f"Somehow don't have space for coordinates: {item} even though it is in range of "
-                f"{self.length}x{self.height} board"
+                f"{self.settings.length}x{self.settings.height} board"
             )
 
         return space
@@ -91,12 +103,12 @@ class Board(BaseModel):
         -------
         BoardSpace generator
         """
-        for coords in itertools.product(range(self.length), range(self.height)):
+        for coords in itertools.product(range(self.settings.length), range(self.settings.height)):
             space = next((s for s in self.spaces if s.x == coords[0] and s.y == coords[1]), None)
             if not space:
                 raise ValueError(
                     f"Somehow don't have space for coordinates: {coords} even though it is in range of "
-                    f"{self.length}x{self.height} board"
+                    f"{self.settings.length}x{self.settings.height} board"
                 )
 
             yield space

@@ -1,11 +1,13 @@
 from fastapi import FastAPI, HTTPException
+from settings import Settings
 import models
 
+
 app = FastAPI()
+settings = Settings()
 
 SCORE = 0
 OUTSTANDING_BOARDS: list[models.Board] = []  # Boards that have been requested but not returned
-BOARD_SIZE_LIMIT = 50  # Amount of boards that can be outstanding at once
 
 
 @app.get("/score")
@@ -17,7 +19,7 @@ async def _():
 async def _():
     global OUTSTANDING_BOARDS
 
-    if len(OUTSTANDING_BOARDS) > BOARD_SIZE_LIMIT:
+    if len(OUTSTANDING_BOARDS) > settings.app.max_boards:
         raise HTTPException(
             status_code=400,
             detail="Cannot provide another board until one is checked in!"
