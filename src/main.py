@@ -35,6 +35,42 @@ async def _():
     return {"id": board.id}
 
 
+@app.post("/hit")
+async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
+    """
+    Hits a space on a board by ID and space coordinates. Will return the actual space.
+
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board to hit the space on
+
+    space : models.BoardSpace
+        Coordinates of space to hit
+
+    Returns
+    -------
+    revealed_space : models.BoardSpace
+        Space that was hit
+    """
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
+    try:
+        space = board[space]
+    except IndexError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    if space.hit:
+        raise HTTPException(
+            status_code=400,
+            detail="Space already hit!"
+        )
+    space.hit = True
+    await asyncio.sleep(randint(20, 50) * helpers.MILLISECONDS)
+    return space
+
+
 @app.get("/is_space_blank")
 async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     """

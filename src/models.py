@@ -33,7 +33,9 @@ class BoardSpaceType(StrEnum):
 
 class BoardSpace(BaseModel):
     """
-    A single Minesweeper space on a board
+    A single Minesweeper space on a board. This serves as the representation of a space and the request body that a
+    caller must send to reference a space on the board. Callers will typically send ``BoardSpace`` objects consisting
+    of only an x, y coordinate value.
     """
     x: int
     y: int
