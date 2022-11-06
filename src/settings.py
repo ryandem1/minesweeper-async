@@ -14,7 +14,7 @@ class AppSettings(BaseModel):
     """
     Global app settings
     """
-    max_boards: int = 50  # Maximum number of outstanding boards to allow
+    max_boards: int = 5  # Maximum number of outstanding boards to allow
 
 
 class Settings(BaseSettings):
