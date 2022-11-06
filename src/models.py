@@ -38,7 +38,7 @@ class BoardSpace(BaseModel):
     x: int
     y: int
     value: int | None = None  # Number of mines in immediate proximity of space.
-    type_: BoardSpaceType | None = None
+    type: BoardSpaceType | None = None
 
 
 class Board(BaseModel):
@@ -72,14 +72,14 @@ class Board(BaseModel):
                 current_x = space.x
 
             match space:
-                case BoardSpace(type_=BoardSpaceType.BLANK):
+                case BoardSpace(type=BoardSpaceType.BLANK):
                     output += " _ "
-                case BoardSpace(type_=BoardSpaceType.VALUE) as space:
+                case BoardSpace(type=BoardSpaceType.VALUE) as space:
                     output += " " + str(space.value) + " "
-                case BoardSpace(type_=BoardSpaceType.MINE):
+                case BoardSpace(type=BoardSpaceType.MINE):
                     output += " * "
                 case _:
-                    raise ValueError(f"Unhandled type: {space.type_}")
+                    raise ValueError(f"Unhandled type: {space.type}")
         return output
 
     def __getitem__(self, item: tuple[int, int] | BoardSpace) -> BoardSpace:
@@ -166,7 +166,7 @@ class Board(BaseModel):
         )
 
         # Adds value spaces according to mine neighbors
-        mine_spaces = (space for space in obj.spaces if space.type_ == BoardSpaceType.MINE)
+        mine_spaces = (space for space in obj.spaces if space.type == BoardSpaceType.MINE)
         for mine_space in mine_spaces:
             for neighbor in obj.get_neighbors(mine_space):
                 match neighbor:

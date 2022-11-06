@@ -52,7 +52,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
     try:
-        space_type = board[space].type_
+        space_type = board[space].type
     except IndexError as e:
         raise HTTPException(
             status_code=400,
