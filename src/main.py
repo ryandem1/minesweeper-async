@@ -72,6 +72,47 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
     return space
 
 
+@app.post("/flag")
+async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
+    """
+    Toggles a flag on a space on a board by ID and space coordinates.
+
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board that the space is on
+
+    space : models.BoardSpace
+        Coordinates of the space to flag
+
+    Returns
+    -------
+    space : models.BoardSpace
+        Coordinates and flag status of space
+    """
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
+    try:
+        space = board[space]
+    except IndexError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    if space.hit:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot flag space, it has already been hit!"
+        )
+    space.flagged = not space.flagged
+
+    await helpers.wait_for(settings.latency.flag)
+    return models.BoardSpace(
+        x=space.x,
+        y=space.y,
+        flagged=space.flagged
+    )
+
+
 @app.get("/is_space_blank")
 async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     """

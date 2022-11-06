@@ -29,8 +29,9 @@ class LatencySettings(BaseModel):
     hit: LatencyValue = 20, 50  # for the /hit endpoint
     is_space_blank: LatencyValue = 200, 300  # for the /is_space_blank endpoint
     check: LatencyValue = 20, 50  # for the /check endpoint
+    flag: LatencyValue = 20, 50  # for the /flag endpoint
 
-    @validator("board", "score", "hit", "is_space_blank", "check", pre=True)
+    @validator("board", "score", "hit", "is_space_blank", "check", "flag", pre=True)
     def _format_all_latency_values(cls, value: str | tuple[int, int] | int) -> LatencyValue:
         """
         Converts latency values from settings to proper format.
