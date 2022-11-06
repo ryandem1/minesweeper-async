@@ -31,6 +31,7 @@ class LatencySettings(BaseModel):
     flag: LatencyValue = 20, 50  # for the /flag endpoint
     is_space_blank: LatencyValue = 200, 300  # for the /is_space_blank endpoint
     get_space_value: LatencyValue = 600, 900  # for the /get_space_value endpoint
+    is_space_a_mine: LatencyValue = 6000, 9000  # for the /is_space_a_mine endpoint
 
     @validator("board", "score", "hit", "is_space_blank", "check", "flag", pre=True)
     def _format_all_latency_values(cls, value: str | tuple[int, int] | int) -> LatencyValue:

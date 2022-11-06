@@ -127,7 +127,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
         ID of the board that the space is on
 
     space : models.BoardSpace
-        Coordinates of the space to flag
+        Coordinates of the space
 
     Returns
     -------
@@ -153,7 +153,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
         ID of the board that the space is on
 
     space : models.BoardSpace
-        Coordinates of the space to flag
+        Coordinates of the space
 
     Returns
     -------
@@ -165,3 +165,29 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
 
     await helpers.wait_for(settings.latency.get_space_value)
     return models.Answer(space.value)
+
+
+@app.get("/is_space_a_mine")
+async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
+    """
+    Returns if the space on the given board is a mine. Because this is valuable information, this endpoint has a 50%
+    chance of returning a 503 error instead of answering.
+
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board that the space is on
+
+    space : models.BoardSpace
+        Coordinates of the space
+
+    Returns
+    -------
+    answer : models.Answer
+        Format: {"answer": <bool>}
+    """
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
+    space = helpers.get_space_on_board_or_error(space, board)
+
+    await helpers.wait_for(settings.latency.is_space_a_mine)
+    return models.Answer(space.type == models.BoardSpaceType.MINE)
