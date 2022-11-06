@@ -135,7 +135,7 @@ class Board(BaseModel):
         obj = cls(settings=settings)
         random.seed(obj.id.int)
 
-        # Adds mines randomly on 2d plane of default dimensions
+        # Adds mines randomly on 2d plane of dimensions specified in settings
         available_coordinates = list(itertools.product(range(settings.length), range(settings.height)))
         obj.spaces.extend(
             BoardSpace(**{
