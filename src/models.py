@@ -155,14 +155,14 @@ class Board(BaseModel):
         # Adds mines randomly on 2d plane of dimensions specified in settings
         available_coordinates = list(itertools.product(range(settings.length), range(settings.height)))
         obj.spaces.extend(
-            BoardSpace(**{
-                "x": x,
-                "y": y,
-                "value": 1,  # For obfuscation,
-                "type": BoardSpaceType.MINE,
-                "hit": False,
-                "flagged": False
-            })
+            BoardSpace(
+                x=x,
+                y=y,
+                value=1,  # For obfuscation,
+                type=BoardSpaceType.MINE,
+                hit=False,
+                flagged=False
+            )
             for x, y in [
                 available_coordinates.pop(random.randrange(len(available_coordinates)))
                 for _ in range(settings.mines)
@@ -179,14 +179,14 @@ class Board(BaseModel):
                         space.value += 1
                     case int(x), int(y):  # If x, y coords get returned, then the space has not been created yet
                         obj.spaces.append(
-                            BoardSpace(**{
-                                "x": x,
-                                "y": y,
-                                "value": 1,
-                                "type": BoardSpaceType.VALUE,
-                                "hit": False,
-                                "flagged": False
-                            })
+                            BoardSpace(
+                                x=x,
+                                y=y,
+                                value=1,
+                                type=BoardSpaceType.VALUE,
+                                hit=False,
+                                flagged=False
+                            )
                         )
                         available_coordinates.remove((x, y))
                     case _:
@@ -194,14 +194,14 @@ class Board(BaseModel):
 
         # Adds remaining blank spaces
         obj.spaces.extend(
-            BoardSpace(**{
-                "x": x,
-                "y": y,
-                "value": 0,
-                "type": BoardSpaceType.BLANK,
-                "hit": False,
-                "flagged": False
-            })
+            BoardSpace(
+                x=x,
+                y=y,
+                value=0,
+                type=BoardSpaceType.BLANK,
+                hit=False,
+                flagged=False
+            )
             for x, y in available_coordinates
         )
         return obj
