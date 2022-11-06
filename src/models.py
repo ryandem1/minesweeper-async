@@ -128,11 +128,11 @@ class Board(BaseModel):
         -------
         BoardSpace generator
         """
-        for coords in itertools.product(range(self.settings.length), range(self.settings.height)):
-            space = next((s for s in self.spaces if s.x == coords[0] and s.y == coords[1]), None)
+        for x, y in itertools.product(range(self.settings.length), range(self.settings.height)):
+            space = next((s for s in self.spaces if s.x == x and s.y == y), None)
             if not space:
                 raise ValueError(
-                    f"Somehow don't have space for coordinates: {coords} even though it is in range of "
+                    f"Somehow don't have space for coordinates: {x, y} even though it is in range of "
                     f"{self.settings.length}x{self.settings.height} board"
                 )
 
