@@ -176,6 +176,7 @@ async def _(board_id: UUID) -> models.Score:
         if space.type == models.BoardSpaceType.MINE and not space.flagged
     )
 
+    # Correct Board Multiplier
     if board.is_correct:
         board_score *= 1.25
 
