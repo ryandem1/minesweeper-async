@@ -15,6 +15,13 @@ class Score(BaseModel):
         super().__init__(**{"score": score})
 
 
+class Answer(BaseModel):
+    answer: bool
+
+    def __init__(self, answer: bool):
+        super().__init__(**{"answer": answer})
+
+
 class BoardSpaceType(StrEnum):
     """
     The types that a ``BoardSpace`` could be
@@ -30,9 +37,9 @@ class BoardSpace(BaseModel):
     """
     x: int
     y: int
-    value: int  # Number of mines in immediate proximity of space.
-    type_: BoardSpaceType
-    hit: bool = False  # Whether the space has been hit or not
+    value: int | None = None  # Number of mines in immediate proximity of space.
+    type_: BoardSpaceType | None = None
+    hit: bool | None = None  # Whether the space has been hit or not
 
 
 class Board(BaseModel):
@@ -76,25 +83,32 @@ class Board(BaseModel):
                     raise ValueError(f"Unhandled type: {space.type_}")
         return output
 
-    def __getitem__(self, item: tuple[int, int]) -> BoardSpace:
+    def __getitem__(self, item: tuple[int, int] | BoardSpace) -> BoardSpace:
         """
         Gets board space by x, y coordinates.
 
         Parameters
         ----------
-        item : tuple[int, int]
-            x,y coordinates of space to get
+        item : tuple[int, int] | BoardSpace
+            x,y coordinates of space to get. Can also pass in a ``BoardSpace`` object, and it will use the x/y values
+            from there.
 
         Returns
         -------
         space : BoardSpace
             Space at coordinates
         """
-        x, y = item
+        match item:
+            case int(x), int(y):
+                x, y = x, y
+            case BoardSpace() as space:
+                x, y = space.x, space.y
+            case _:
+                raise KeyError("Can only index into board with a pair of coords or a `BoardSpace`!")
 
         if not self.settings.length > x >= 0 or not self.settings.height > y >= 0:
             raise IndexError(
-                f"Coordinates: {item} out-of-range. Board dimensions: {self.settings.length}x{self.settings.height}"
+                f"Coordinates: {x, y} out-of-range. Board dimensions: {self.settings.length}x{self.settings.height}"
             )
 
         space = next((s for s in self.spaces if s.x == x and s.y == y), None)
@@ -144,7 +158,8 @@ class Board(BaseModel):
                 "x": x,
                 "y": y,
                 "value": 0,
-                "type_": BoardSpaceType.MINE
+                "type_": BoardSpaceType.MINE,
+                "hit": False
             })
             for x, y in [
                 available_coordinates.pop(random.randrange(len(available_coordinates)))
@@ -166,7 +181,8 @@ class Board(BaseModel):
                                 "x": x,
                                 "y": y,
                                 "value": 1,
-                                "type_": BoardSpaceType.VALUE
+                                "type_": BoardSpaceType.VALUE,
+                                "hit": False
                             })
                         )
                         available_coordinates.remove((x, y))
@@ -179,7 +195,8 @@ class Board(BaseModel):
                 "x": x,
                 "y": y,
                 "value": 0,
-                "type_": BoardSpaceType.BLANK
+                "type_": BoardSpaceType.BLANK,
+                "hit": False
             })
             for x, y in available_coordinates
         )
