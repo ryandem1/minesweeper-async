@@ -82,6 +82,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
             detail="Space already hit!"
         )
     space.hit = True
+    space.flagged = False
 
     await helpers.wait_for(settings.latency.hit)
     return space
@@ -141,8 +142,44 @@ async def _(board_id: UUID) -> models.Score:
     global SCORE
     global OUTSTANDING_BOARDS
 
+    board_score = 0
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
 
+    # Flat Processing bonus equal to length and height of the board
+    board_score += board.settings.length + board.settings.height
+
+    # Add up all safe, value spaces that were hit
+    board_score += sum(
+        space.value
+        for space in board
+        if space.type == models.BoardSpaceType.VALUE and space.hit
+    )
+
+    # Subtract all safe, value spaces that were flagged
+    board_score -= sum(
+        space.value
+        for space in board
+        if space.type == models.BoardSpaceType.VALUE and space.flagged
+    )
+
+    # Add up all mines successfully flagged
+    board_score += sum(
+        sum(space.value for space in board.get_neighbors(space))
+        for space in board
+        if space.type == models.BoardSpaceType.MINE and space.flagged
+    )
+
+    # Subtract all non-flagged mines
+    board_score -= sum(
+        sum(space.value for space in board.get_neighbors(space))
+        for space in board
+        if space.type == models.BoardSpaceType.MINE and not space.flagged
+    )
+
+    if board.is_correct:
+        board_score *= 1.25
+
+    SCORE += board_score
     OUTSTANDING_BOARDS.remove(board)
 
     await helpers.wait_for(settings.latency.check)

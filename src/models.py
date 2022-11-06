@@ -143,6 +143,32 @@ class Board(BaseModel):
 
             yield space
 
+    @property
+    def is_correct(self) -> bool:
+        """
+        Will check if:
+
+        1. All mines are flagged
+        2. All safe spaces are hit
+
+        Returns
+        -------
+        result : bool
+            True if the board is currently correct, False if not
+        """
+        all_mines_are_flagged = all(
+            space.flagged
+            for space in self
+            if space.type == BoardSpaceType.MINE
+        )
+        all_safe_spaces_are_hit = all(
+            space.hit
+            for space in self
+            if space.type != BoardSpaceType.MINE
+        )
+
+        return all_mines_are_flagged and all_safe_spaces_are_hit
+
     @classmethod
     def new(cls, settings: BoardSettings):
         """
