@@ -27,7 +27,7 @@ async def _():
 
     board = models.Board.new(settings=settings.board)
     OUTSTANDING_BOARDS.append(board)
-    return board
+    return {"id": board.id}
 
 
 @app.post("/check")
