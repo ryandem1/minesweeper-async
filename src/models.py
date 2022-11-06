@@ -195,5 +195,5 @@ class Board(BaseModel):
                 yield self[neighbor_coords]
             except IndexError:  # Current node must be an edge, so neighbor is off the board
                 continue
-            except ValueError:
+            except ValueError:  # Current node is not created yet
                 yield neighbor_coords
