@@ -18,7 +18,7 @@ async def _():
     return models.Score(SCORE)
 
 
-@app.get("/board")
+@app.post("/board")
 async def _():
     global OUTSTANDING_BOARDS
 
