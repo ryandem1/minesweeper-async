@@ -1,3 +1,4 @@
+import random
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
@@ -16,12 +17,29 @@ OUTSTANDING_BOARDS: list[models.Board] = []  # Boards that have been requested b
 # region ACTION_ENDPOINTS
 
 @app.get("/score")
-async def _():
+async def _() -> models.Score:
+    """
+    Returns the current score.
+
+    Returns
+    -------
+    score : models.Score
+        Current score like: {"score": <score_int>}
+    """
     return models.Score(SCORE)
 
 
 @app.post("/board")
-async def _():
+async def _() -> models.Board:
+    """
+    Generates a new board if there is space available for another outstanding board. Will return the ID of the created
+    board.
+
+    Returns
+    -------
+    board : dict[str, UUID]
+        Response format like: {"id": "<new_board_uuid>"}
+    """
     global OUTSTANDING_BOARDS
 
     if len(OUTSTANDING_BOARDS) > settings.app.max_boards:
@@ -34,7 +52,7 @@ async def _():
     OUTSTANDING_BOARDS.append(board)
 
     await helpers.wait_for(settings.latency.board)
-    return {"id": board.id}
+    return models.Board(id=board.id, settings=board.settings)
 
 
 @app.post("/hit")
@@ -106,13 +124,26 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
 
 
 @app.post("/check")
-async def _(board: models.Board):
+async def _(board_id: UUID) -> models.Score:
+    """
+    Checks a board for correctness, assigns points, and frees up the space in `OUTSTANDING_BOARDS`
+
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board to check
+
+    Returns
+    -------
+    score : models.Score
+        Current score after checking
+    """
     global SCORE
     global OUTSTANDING_BOARDS
 
-    correct_board = helpers.get_board_by_id_or_error(board.id, OUTSTANDING_BOARDS)
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
 
-    OUTSTANDING_BOARDS.remove(correct_board)
+    OUTSTANDING_BOARDS.remove(board)
 
     await helpers.wait_for(settings.latency.check)
     return models.Score(SCORE)
@@ -196,6 +227,9 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     space = helpers.get_space_on_board_or_error(space, board)
 
     await helpers.wait_for(settings.latency.is_space_a_mine)
+    if random.getrandbits(1) == 1:
+        raise HTTPException(status_code=503)
+
     return models.Answer(space.type == models.BoardSpaceType.MINE)
 
 # endregion

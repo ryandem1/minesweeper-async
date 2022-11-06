@@ -56,8 +56,8 @@ class Board(BaseModel):
         index=True,
         nullable=False,
     )
-    spaces: list[BoardSpace] = []
-    settings: BoardSettings  # Most likely global board settings
+    spaces: list[BoardSpace] | None = None
+    settings: BoardSettings | None = None  # Most likely global board settings
 
     def __str__(self) -> str:
         """
@@ -152,7 +152,7 @@ class Board(BaseModel):
         -------
         Board object
         """
-        obj = cls(settings=settings)
+        obj = cls(spaces=[], settings=settings)
         random.seed(obj.id.int)
 
         # Adds mines randomly on 2d plane of dimensions specified in settings
