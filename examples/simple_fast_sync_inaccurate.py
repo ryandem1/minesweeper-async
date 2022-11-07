@@ -1,8 +1,3 @@
-"""
-Determines whether each space is a mine, marks accordingly, and then submits the board at the end, all synchronously.
-
-Score: 537
-"""
 import itertools
 
 from requests import Session
@@ -21,16 +16,13 @@ def main():
         board_length = response_body["settings"]["length"]
         board_height = response_body["settings"]["height"]
 
+        flag = False
         for x, y in itertools.product(range(board_length), range(board_height)):
-            response = session.get(
-                base_url + "/is_space_a_mine",
-                params={"board_id": board_id},
-                json={"x": x, "y": y}
-            )
-            response.raise_for_status()
-            space_is_a_mine = response.json()["answer"]
-            endpoint = "/flag" if space_is_a_mine else "/hit"
-            session.post(base_url + endpoint, params={"board_id": board_id}, json={"x": x, "y": y})
+            if flag:
+                session.post(base_url + "/flag", params={"board_id": board_id}, json={"x": x, "y": y})
+            else:
+                session.post(base_url + "/hit", params={"board_id": board_id}, json={"x": x, "y": y})
+            flag = not flag
 
         score_response = session.post(base_url + "/check", params={"board_id": board_id})
         score_response.raise_for_status()
