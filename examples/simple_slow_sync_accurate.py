@@ -1,5 +1,7 @@
 """
 Determines whether each space is a mine, marks accordingly, and then submits the board at the end, all synchronously.
+
+Score: 250
 """
 import itertools
 

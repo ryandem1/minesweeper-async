@@ -60,12 +60,12 @@ out accuracy for performance. Here is the score breakdown:
 
 Action endpoints can create/interact/check a minesweeper board.
 
-| Endpoint | Method | Description                                                                                                                                                            | Query Parameter(s)                                              | Sample Request Body |
-|----------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
-| `/board` | `POST` | Creates a new Minesweeper board internally and will return the caller the UUID                                                                                         | N/A                                                             | N/A                 |
-| `/hit`   | `POST` | Hits a Minesweeper space by board/coordinates, like if you clicked the space on Windows. Throws an error if the space has been hit already. Returns the revealed space | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
-| `/flag`  | `POST` | Toggles flag on a Minesweeper board space. Throws an error if the space has been hit already. Returns the flag status of space                                         | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
-| `/check` | `POST` | Will check the provided board, update the score, and free up a space in the overall outstanding boards.                                                                | N/A                                                             | TBD                 |
+| Endpoint | Method | Description                                                                                                                                                            | Query Parameter(s)                                                            | Sample Request Body |
+|----------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|---------------------|
+| `/board` | `POST` | Creates a new Minesweeper board internally and will return the caller the UUID                                                                                         | N/A                                                                           | N/A                 |
+| `/hit`   | `POST` | Hits a Minesweeper space by board/coordinates, like if you clicked the space on Windows. Throws an error if the space has been hit already. Returns the revealed space | `board_id : UUID`: ID of the existing Minesweeper board to hit the space on.  | `{"x": 0, "y": 0}`  |
+| `/flag`  | `POST` | Toggles flag on a Minesweeper board space. Throws an error if the space has been hit already. Returns the flag status of space                                         | `board_id : UUID`: ID of the existing Minesweeper board to flag the space on. | `{"x": 0, "y": 0}`  |
+| `/check` | `POST` | Will check the provided board, update the score, and free up a space in the overall outstanding boards.                                                                | `board_id : UUID`: ID of an existing Minesweeper board to check               | N/A                 |
 
 ### Discovery Endpoints
 
