@@ -1,4 +1,3 @@
-import random
 from uuid import UUID
 
 from fastapi import FastAPI, HTTPException
@@ -245,8 +244,7 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
 @app.get("/is_space_a_mine")
 async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     """
-    Returns if the space on the given board is a mine. Because this is valuable information, this endpoint has a 50%
-    chance of returning a 503 error instead of answering.
+    Returns if the space on the given board is a mine.
 
     Parameters
     ----------
@@ -265,9 +263,6 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
     space = helpers.get_space_on_board_or_error(space, board)
 
     await helpers.wait_for(settings.latency.is_space_a_mine)
-    if random.getrandbits(1) == 1:
-        raise HTTPException(status_code=503)
-
     return models.Answer(space.type == models.BoardSpaceType.MINE)
 
 # endregion

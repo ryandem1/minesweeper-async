@@ -40,7 +40,7 @@ exponentially-unlikely set of mines. Kaye also proved that infinite Minesweeper 
 7. Boards do not have to be completely hit/flagged to be submitted, but any untouched mines will be deducted like they were hit, and you will miss out on any non-hit Value spaces.
 
 ### The Goal
-- Process as many boards as possible, as accurately as possible in 10 minutes
+- Process as many boards as possible, as accurately as possible within a limited timeframe.
 
 ### Scoring
 Because of the imperfect nature of all of this, our answers might not be perfect. The idea is that you will have to balance
@@ -76,4 +76,4 @@ endpoint can be pretty informative, they typically have a high latency to use.
 |--------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
 | `/is_space_blank`  | `GET`  | Returns a bool answer whether or not the space is a free space (no value/no mine)                                                                                                                               | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
 | `/get_space_value` | `GET`  | Gets the amount of mines immediate adjacent to the space by coordinates. Note that mines also have a value, and they count themselves, so they will not necessarily be detectable from determining their value. | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
-| `/is_space_a_mine` | `GET`  | Returns if the space on the given board is a mine. Because this is valuable information, this endpoint has a 50% chance of returning a 503 error instead of answering.                                          | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
+| `/is_space_a_mine` | `GET`  | Returns if the space on the given board is a mine.                                                                                                                                                              | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
