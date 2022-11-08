@@ -23,6 +23,16 @@ def main():
 
         for x, y in itertools.product(range(board_length), range(board_height)):
             response = session.get(
+                base_url + "/is_space_blank",
+                params={"board_id": board_id},
+                json={"x": x, "y": y}
+            )
+            response.raise_for_status()
+            space_is_blank = response.json()["answer"]
+            if space_is_blank:
+                session.post(base_url + "/hit", params={"board_id": board_id}, json={"x": x, "y": y})
+                continue
+            response = session.get(
                 base_url + "/is_space_a_mine",
                 params={"board_id": board_id},
                 json={"x": x, "y": y}

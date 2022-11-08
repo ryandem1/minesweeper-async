@@ -37,5 +37,4 @@ if __name__ == '__main__':
     with ThreadPoolExecutor(max_workers=5) as pool:
         while True:
             futures = [pool.submit(main) for _ in range(5)]
-            for future in as_completed(futures):
-                print(f"Current score: {future.result()}")
+            print(f"Current score: {max([future.result() for future in as_completed(futures)])}")
