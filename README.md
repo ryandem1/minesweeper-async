@@ -44,7 +44,7 @@ exponentially-unlikely set of mines. Kaye also proved that infinite Minesweeper 
 
 ### Scoring
 Because of the imperfect nature of all of this, our answers might not be perfect. The idea is that you will have to balance
-out accuracy for performance. Here is the score breakdown:
+out accuracy for performance. The goal of this scoring is to be scalable to various board sizes. Here is the score breakdown:
 
 | Action                     | Point Value                                                   | Description                                                                                                             |
 |----------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
