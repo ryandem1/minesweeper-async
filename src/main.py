@@ -113,6 +113,11 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
             status_code=400,
             detail="Cannot flag space, it has already been hit!"
         )
+    if len([space for space in board if space.flagged]) >= board.settings.mines:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot place another flag! Flags are limited to the # of mines on a board"
+        )
     space.flagged = not space.flagged
 
     await helpers.wait_for(settings.latency.flag)
