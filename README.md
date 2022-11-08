@@ -46,15 +46,15 @@ exponentially-unlikely set of mines. Kaye also proved that infinite Minesweeper 
 Because of the imperfect nature of all of this, our answers might not be perfect. The idea is that you will have to balance
 out accuracy for performance. Here is the score breakdown:
 
-| Action                     | Point Value                            | Description                                                                                                             |
-|----------------------------|----------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| Board Processed            | +(Board Length + Board Height)         | Successfully submitted a valid board to `/check`                                                                        |
-| Fully Accurate Board Bonus | x1.25                                  | Bonus for submitting a fully accurate board (all mines flagged correctly, all safe spaces hit correctly, no undefineds) |
-| Safe Space Hit             | +Value of Space                        | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity         |
-| Safe Space Flagged         | -Value of Space                        | Penalty for flagging a safe space is # of mines in immediate proximity                                                  |
-| Mine Flagged               | +(Sum of all neighboring space values) | Each correctly flagged mine on a submitted board                                                                        |
-| Mine Hit                   | -(Sum of all neighboring space values) | Penalty for hitting a mine                                                                                              |
-| Mine Missed                | -(Sum of all neighboring space values) | Penalty for submitting a board with an un-flagged mine                                                                  |
+| Action                     | Point Value                                                   | Description                                                                                                             |
+|----------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
+| Board Processed            | +(Board Length + Board Height)                                | Successfully submitted a valid board to `/check`                                                                        |
+| Fully Accurate Board Bonus | x1.25                                                         | Bonus for submitting a fully accurate board (all mines flagged correctly, all safe spaces hit correctly, no undefineds) |
+| Safe Space Hit             | +Value of Space                                               | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity         |
+| Safe Space Flagged         | -Value of Space                                               | Penalty for flagging a safe space is # of mines in immediate proximity                                                  |
+| Mine Flagged               | +(Avg of neighbor values rounded to nearest whole number * 2) | Each correctly flagged mine on a submitted board                                                                        |
+| Mine Hit                   | -(Avg of neighbor values rounded to nearest whole number * 2) | Penalty for hitting a mine                                                                                              |
+| Mine Missed                | -(Avg of neighbor values rounded to nearest whole number * 2) | Penalty for submitting a board with an un-flagged mine                                                                  |
 
 ### Action Endpoints
 

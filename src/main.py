@@ -163,14 +163,14 @@ async def _(board_id: UUID) -> models.Score:
 
     # Add up all mines successfully flagged
     board_score += sum(
-        sum(space.value for space in board.get_neighbors(space))
+        round(sum(space.value for space in board.get_neighbors(space)) / len(list(board.get_neighbors(space)))) * 2
         for space in board
         if space.type == models.BoardSpaceType.MINE and space.flagged
     )
 
     # Subtract all non-flagged mines
     board_score -= sum(
-        sum(space.value for space in board.get_neighbors(space))
+        round(sum(space.value for space in board.get_neighbors(space)) / len(list(board.get_neighbors(space)))) * 2
         for space in board
         if space.type == models.BoardSpaceType.MINE and not space.flagged
     )
