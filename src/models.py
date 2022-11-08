@@ -252,6 +252,8 @@ class Board(BaseModel):
         are in range, this will instead return the coordinates. See ``self.new`` for use
         """
         for neighbor_coords in itertools.product(range(space.x - 1, space.x + 2), range(space.y - 1, space.y + 2)):
+            if neighbor_coords == (space.x, space.y):  # Need to skip self
+                continue
             try:
                 yield self[neighbor_coords]
             except IndexError:  # Current node must be an edge, so neighbor is off the board
