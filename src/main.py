@@ -149,13 +149,6 @@ async def _(board_id: UUID) -> models.Score:
     board_score = 0
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
 
-    number_of_mines_not_flagged = len([
-        space
-        for space in board
-        if space.type == models.BoardSpaceType.MINE and not space.flagged
-    ])
-    mine_missed_multiplier = 1 + (number_of_mines_not_flagged / board.settings.mines)
-
     # Flat Processing bonus equal to length and height of the board
     board_score += board.settings.length + board.settings.height
 
@@ -166,33 +159,14 @@ async def _(board_id: UUID) -> models.Score:
         if space.type == models.BoardSpaceType.VALUE and space.hit
     )
 
-    # Subtract all safe, value spaces that were flagged
-    board_score -= sum(
-        space.value
-        for space in board
-        if space.type == models.BoardSpaceType.VALUE and space.flagged
-    )
-
-    # Add up all mines successfully flagged
-    board_score += sum(
-        round((sum(space.value for space in board.get_neighbors(space)) / len(list(board.get_neighbors(space))))) * 2
+    # Penalty for accuracy
+    number_of_mines_flagged = len([
+        space
         for space in board
         if space.type == models.BoardSpaceType.MINE and space.flagged
-    )
-
-    # Subtract all non-flagged mines
-    board_score -= sum(
-        round(
-            (sum(space.value for space in board.get_neighbors(space)) / len(list(board.get_neighbors(space)))) *
-            mine_missed_multiplier
-        ) * 2
-        for space in board
-        if space.type == models.BoardSpaceType.MINE and not space.flagged
-    )
-
-    # Correct Board Multiplier
-    if board.is_correct:
-        board_score *= 1.25
+    ])
+    accuracy = number_of_mines_flagged / board.settings.mines
+    board_score *= accuracy
 
     SCORE += board_score
     OUTSTANDING_BOARDS.remove(board)

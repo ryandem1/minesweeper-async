@@ -9,7 +9,7 @@ of the game and a few of the rules.
 
 1. Instead of completing 1 board, this game is more about processing many Minesweeper boards as quickly as possible, while remaining as accurate as possible
 2. Hitting a mine on a board does not end the board
-3. There is a scoring system that assigns points based on accuracy, scores can be negative, see chart below
+3. There is a scoring system that assigns points based on accuracy, see chart below
 4. The idea is that, to get a high score, one must balance performance and accuracy
 5. While in normal Minesweeper, there can be circumstances where, given perfect analysis of all available information, 
 it is impossible to determine with 100% that a space is or is not a mine without guessing; in Async Minesweeper, you 
@@ -46,14 +46,14 @@ exponentially-unlikely set of mines. Kaye also proved that infinite Minesweeper 
 Because of the imperfect nature of all of this, our answers might not be perfect. The idea is that you will have to balance
 out accuracy for performance. The goal of this scoring is to be scalable to various board sizes. Here is the score breakdown:
 
-| Action                     | Point Value                                                                                                       | Description                                                                                                             |
-|----------------------------|-------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| Board Processed            | +(Board Length + Board Height)                                                                                    | Successfully submitted a valid board to `/check`                                                                        |
-| Fully Accurate Board Bonus | x1.25                                                                                                             | Bonus for submitting a fully accurate board (all mines flagged correctly, all safe spaces hit correctly, no undefineds) |
-| Safe Space Hit             | +Value of Space                                                                                                   | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity         |
-| Safe Space Flagged         | -Value of Space                                                                                                   | Penalty for flagging a safe space is # of mines in immediate proximity                                                  |
-| Mine Flagged               | +(Avg of neighbor values rounded to nearest whole number * 2)                                                     | Each correctly flagged mine on a submitted board                                                                        |
-| Mine Hit/Missed            | -(Avg of neighbor values rounded to nearest whole number * 2 * (1 + (# Of non-flagged mines / Total # of Mines))) | Penalty for hitting a mine. Calculation is designed to make it more costly to miss more mines in a board.               |
+| Item               | Point Value                                                             | Description                                                                                                     |
+|--------------------|-------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| Board Processed    | +(Board Length + Board Height)                                          | Successfully submitted a valid board to `/check`                                                                |
+| Safe Space Hit     | +Value of Space                                                         | Each correctly hit safe space on a submitted board will increase score by the # of mines in immediate proximity |
+| Mine Accuracy      | Entire score gets multiplied by (number of mines flagged / total mines) | Each correctly flagged mine on a submitted board.                                                               |
+
+With this scoring, if no mine is flagged correctly, the score for the entire board will be 0. If a board is perfectly accurate,
+the score will be equal to the total value of all value spaces on the board + the perimeter of the board.
 
 ### Action Endpoints
 
