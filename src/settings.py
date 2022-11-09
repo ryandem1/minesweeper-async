@@ -27,11 +27,9 @@ class LatencySettings(BaseModel):
     board: LatencyValue = 10, 20  # for the /board endpoint
     score: LatencyValue = 0  # for the /score endpoint
     hit: LatencyValue = 10, 20  # for the /hit endpoint
+    batch_hit: LatencyValue = 30, 60  # for the /batch_hit endpoint
     check: LatencyValue = 10, 20  # for the /check endpoint
     flag: LatencyValue = 10, 20  # for the /flag endpoint
-    is_space_blank: LatencyValue = 100, 200  # for the /is_space_blank endpoint
-    get_space_value: LatencyValue = 200, 400  # for the /get_space_value endpoint
-    is_space_a_mine: LatencyValue = 2000, 4000  # for the /is_space_a_mine endpoint
 
     @validator("board", "score", "hit", "is_space_blank", "check", "flag", pre=True)
     def _format_all_latency_values(cls, value: str | tuple[int, int] | int) -> LatencyValue:

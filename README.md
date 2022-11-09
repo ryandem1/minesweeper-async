@@ -11,10 +11,6 @@ of the game and a few of the rules.
 2. Hitting a mine on a board does not end the board
 3. There is a scoring system that assigns points based on accuracy, see chart below
 4. The idea is that, to get a high score, one must balance performance and accuracy
-5. While in normal Minesweeper, there can be circumstances where, given perfect analysis of all available information, 
-it is impossible to determine with 100% that a space is or is not a mine without guessing; in Async Minesweeper, you 
-can ask the server questions about the board at the cost of latency depending on how informative the question is. This
-way, it is possible to accurately determine every space of every board
 
 
 Here is a note on the computation complexity of Minesweeper that I stole from Wikipedia:
@@ -33,11 +29,10 @@ exponentially-unlikely set of mines. Kaye also proved that infinite Minesweeper 
 ### Parameters
 1. Minesweeper board size/mine count is configurable, the default is the standard 9x9, 10 mine boards from Windows.
 2. All endpoint latency values are configurable via environment vars
-3. Information about boards can be inferred from data provided from the various discovery endpoints in the `minesweeper` server.
-4. Data gathering endpoints are formatted like questions to the server.
-5. No endpoint will really give full information, and generally, the more informative an endpoint is, the longer the latency will be
-6. Boards will only be counted when they are checked by passing the ``board_id`` to `/check`
-7. Boards do not have to be completely hit/flagged to be submitted, but any untouched mines will be deducted like they were hit, and you will miss out on any non-hit Value spaces.
+3. Data gathering endpoints are formatted like questions to the server.
+4. No endpoint will really give full information, and generally, the more informative an endpoint is, the longer the latency will be
+5. Boards will only be counted when they are checked by passing the ``board_id`` to `/check`
+6. Boards do not have to be completely hit/flagged to be submitted, but any untouched mines will be deducted like they were hit, and you will miss out on any non-hit Value spaces.
 
 ### The Goal
 - Process as many boards as possible, as accurately as possible within a limited timeframe.
@@ -59,20 +54,10 @@ the score will be equal to the total value of all value spaces on the board + th
 
 Action endpoints can create/interact/check a minesweeper board.
 
-| Endpoint | Method | Description                                                                                                                                                            | Query Parameter(s)                                                            | Sample Request Body |
-|----------|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|---------------------|
-| `/board` | `POST` | Creates a new Minesweeper board internally and will return the caller the UUID                                                                                         | N/A                                                                           | N/A                 |
-| `/hit`   | `POST` | Hits a Minesweeper space by board/coordinates, like if you clicked the space on Windows. Throws an error if the space has been hit already. Returns the revealed space | `board_id : UUID`: ID of the existing Minesweeper board to hit the space on.  | `{"x": 0, "y": 0}`  |
-| `/flag`  | `POST` | Toggles flag on a Minesweeper board space. Throws an error if the space has been hit already. Returns the flag status of space                                         | `board_id : UUID`: ID of the existing Minesweeper board to flag the space on. | `{"x": 0, "y": 0}`  |
-| `/check` | `POST` | Will check the provided board, update the score, and free up a space in the overall outstanding boards.                                                                | `board_id : UUID`: ID of an existing Minesweeper board to check               | N/A                 |
-
-### Discovery Endpoints
-
-Discovery endpoints can provide information about the spaces on a board without interacting with them. Because these
-endpoint can be pretty informative, they typically have a high latency to use.
-
-| Endpoint           | Method | Description                                                                                                                                                                                                     | Query Parameter(s)                                              | Sample Request Body |
-|--------------------|--------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------|---------------------|
-| `/is_space_blank`  | `GET`  | Returns a bool answer whether or not the space is a free space (no value/no mine)                                                                                                                               | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
-| `/get_space_value` | `GET`  | Gets the amount of mines immediate adjacent to the space by coordinates. Note that mines also have a value, and they count themselves, so they will not necessarily be detectable from determining their value. | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
-| `/is_space_a_mine` | `GET`  | Returns if the space on the given board is a mine.                                                                                                                                                              | `board_id : UUID`: ID of an existing Minesweeper board to query | `{"x": 0, "y": 0}`  |
+| Endpoint     | Method | Description                                                                                                                                                             | Query Parameter(s)                                                            | Sample Request Body |
+|--------------|--------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|---------------------|
+| `/board`     | `POST` | Creates a new Minesweeper board internally and will return the caller the UUID                                                                                          | N/A                                                                           | N/A                 |
+| `/hit`       | `POST` | Hits a Minesweeper space by board/coordinates, like if you clicked the space on Windows. Throws an error if the space has been hit already. Returns the revealed space  | `board_id : UUID`: ID of the existing Minesweeper board to hit the space on.  | `{"x": 0, "y": 0}`  |
+| `/batch_hit` | `POST` | Hit spaces on the board. The spaces must all be neighbors. For this endpoint, if any of the spaces are mines, it will return a 400 error and the spaces will not be hit | `board_id : UUID`: ID of the existing Minesweeper board to hit the space on.  | `{"x": 0, "y": 0}`  |
+| `/flag`      | `POST` | Toggles flag on a Minesweeper board space. Throws an error if the space has been hit already. Returns the flag status of space                                          | `board_id : UUID`: ID of the existing Minesweeper board to flag the space on. | `{"x": 0, "y": 0}`  |
+| `/check`     | `POST` | Will check the provided board, update the score, and free up a space in the overall outstanding boards.                                                                 | `board_id : UUID`: ID of an existing Minesweeper board to check               | N/A                 |

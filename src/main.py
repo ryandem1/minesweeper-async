@@ -13,8 +13,6 @@ SCORE = 0
 OUTSTANDING_BOARDS: list[models.Board] = []  # Boards that have been requested but not returned
 
 
-# region ACTION_ENDPOINTS
-
 @app.get("/score")
 async def _() -> models.Score:
     """
@@ -85,6 +83,45 @@ async def _(board_id: UUID, space: models.BoardSpace) -> models.BoardSpace:
 
     await helpers.wait_for(settings.latency.hit)
     return space
+
+
+@app.post("/batch_hit")
+async def _(board_id: UUID, spaces: list[models.BoardSpace]) -> list[models.BoardSpace]:
+    """
+    Hit spaces on the board. The spaces must all be neighbors. For this endpoint, if any of the spaces are mines, it
+    will return a 400 error and the spaces will not be hit
+
+    Parameters
+    ----------
+    board_id : UUID
+        ID of the board to hit the space on
+
+    spaces : list[models.BoardSpace]
+        Coordinates of spaces to hit
+
+    Returns
+    -------
+    revealed_spaces : list[models.BoardSpace]
+        Spaces that were hit
+    """
+    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
+    spaces = [helpers.get_space_on_board_or_error(space, board) for space in spaces]
+    if any(space for space in spaces if space.type == models.BoardSpaceType.MINE):
+        raise HTTPException(
+            status_code=400,
+            detail="Batch hits cannot include mines!"
+        )
+    for space in spaces:
+        if space.hit:
+            raise HTTPException(
+                status_code=400,
+                detail="A space in the batch was already hit!"
+            )
+        space.hit = True
+        space.flagged = False
+
+    await helpers.wait_for(settings.latency.batch_hit)
+    return spaces
 
 
 @app.post("/flag")
@@ -173,85 +210,3 @@ async def _(board_id: UUID) -> models.Score:
 
     await helpers.wait_for(settings.latency.check)
     return models.Score(SCORE)
-
-# endregion
-
-# region DISCOVERY_ENDPOINTS
-
-
-@app.get("/is_space_blank")
-async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
-    """
-    Checks if space is blank, pretty cheap option. Costs 200-300 ms
-
-    Parameters
-    ----------
-    board_id : UUID
-        ID of the board that the space is on
-
-    space : models.BoardSpace
-        Coordinates of the space
-
-    Returns
-    -------
-    response : dict[str, bool]
-        Format: {"answer": <bool>}
-    """
-    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    space_type = helpers.get_space_on_board_or_error(space, board).type
-
-    await helpers.wait_for(settings.latency.is_space_blank)
-    return models.Answer(space_type == models.BoardSpaceType.BLANK)
-
-
-@app.get("/get_space_value")
-async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
-    """
-    Gets the amount of mines immediate adjacent to the space by coordinates. Note that mines also have a value, and they
-    count themselves, so they will not necessarily be detectable from determining their value.
-
-    Parameters
-    ----------
-    board_id : UUID
-        ID of the board that the space is on
-
-    space : models.BoardSpace
-        Coordinates of the space
-
-    Returns
-    -------
-    answer : models.Answer
-        Format: {"answer": <int_value>}
-    """
-    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    space = helpers.get_space_on_board_or_error(space, board)
-
-    await helpers.wait_for(settings.latency.get_space_value)
-    return models.Answer(space.value)
-
-
-@app.get("/is_space_a_mine")
-async def _(board_id: UUID, space: models.BoardSpace) -> models.Answer:
-    """
-    Returns if the space on the given board is a mine.
-
-    Parameters
-    ----------
-    board_id : UUID
-        ID of the board that the space is on
-
-    space : models.BoardSpace
-        Coordinates of the space
-
-    Returns
-    -------
-    answer : models.Answer
-        Format: {"answer": <bool>}
-    """
-    board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
-    space = helpers.get_space_on_board_or_error(space, board)
-
-    await helpers.wait_for(settings.latency.is_space_a_mine)
-    return models.Answer(space.type == models.BoardSpaceType.MINE)
-
-# endregion
