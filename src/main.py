@@ -106,6 +106,12 @@ async def _(board_id: UUID, spaces: list[models.BoardSpace]) -> list[models.Boar
     """
     board = helpers.get_board_by_id_or_error(board_id, OUTSTANDING_BOARDS)
     spaces = [helpers.get_space_on_board_or_error(space, board) for space in spaces]
+    if len(spaces) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Batch hits must include at least 2 spaces"
+        )
+
     if any(space for space in spaces if space.type == models.BoardSpaceType.MINE):
         raise HTTPException(
             status_code=400,
